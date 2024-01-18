@@ -51,7 +51,7 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
   intro t T env ht;
   have h := And.left ht;
   have emp := And.right ht;
-  induction h with
+  induction And.left ht with
   | var_rule _ _ _ pre =>
     have nonemp := And.right ht;
     rw [nonemp] at pre
@@ -64,27 +64,41 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
     | var x =>
       have nonemp := env_var_rule_noemp x (arrow T1 T2) env pre1
       contradiction
-    | abs t e =>
+    | abs _ _ =>
       cases e2 with
       | var x =>
         have nonemp := env_var_rule_noemp x T1 env pre2
         contradiction
-      | abs t e =>
+      | abs _ _ =>
         apply Or.intro_right
         apply Exists.intro
         apply e_app_abs
         apply value.abs
       | app _ _ =>
         apply Or.intro_right
-        apply Exists.intro
-        apply e_app_right
-        apply value.abs
-        apply ihe2 (pre2 ∧ emp)
+        have r := And.intro pre2 emp;
+        cases ihe2 r pre2 emp with
+        | inl h1 =>
+          contradiction
+        | inr h2 =>
+          cases h2 with
+          | intro _ h =>
+            apply Exists.intro
+            apply e_app_right
+            apply value.abs
+            apply h
     | app _ _ =>
       apply Or.intro_right
-      apply Exists.intro
-      apply e_app_left
-      apply ihe1 (pre1 ∧ emp)
+      have r := And.intro pre1 emp;
+      cases ihe1 r pre1 emp with
+      | inl h1 =>
+        contradiction
+      | inr h2 =>
+        cases h2 with
+        | intro _ h =>
+          apply Exists.intro
+          apply e_app_left
+          apply h
 
 theorem preservation : ∀ (e e' : term) (t : type) (env : type_env), has_type env e t → eval e e' → has_type env e' t :=
   sorry
