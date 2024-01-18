@@ -51,7 +51,7 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
   intro t T env ht;
   have h := And.left ht;
   have emp := And.right ht;
-  induction And.left ht with
+  induction h with
   | var_rule _ _ _ pre =>
     have nonemp := And.right ht;
     rw [nonemp] at pre
@@ -77,7 +77,7 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
       | app _ _ =>
         apply Or.intro_right
         have r := And.intro pre2 emp;
-        cases ihe2 r pre2 emp with
+        cases ihe2 r emp with
         | inl h1 =>
           contradiction
         | inr h2 =>
@@ -90,7 +90,7 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
     | app _ _ =>
       apply Or.intro_right
       have r := And.intro pre1 emp;
-      cases ihe1 r pre1 emp with
+      cases ihe1 r emp with
       | inl h1 =>
         contradiction
       | inr h2 =>
