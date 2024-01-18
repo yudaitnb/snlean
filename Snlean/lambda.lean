@@ -41,20 +41,19 @@ inductive eval : term → term → Prop
 open eval
 
 theorem env_var_rule_noemp : ∀ (x : Nat) (T : type) (env : type_env), has_type env (var x) T → env ≠ [] := by
-  intro x T env ht emp;
+  intro x T env ht env_is_emp;
   cases ht with
-  | var_rule _ _ _ nonemp =>
-    rw [emp] at nonemp
+  | var_rule _ _ _ env_is_not_emp =>
+    rw [env_is_emp] at env_is_not_emp
     contradiction
 
 theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T ∧ env = [] → value t ∨ (∃t' : term, eval t t') := by
   intro t T env ht;
-  have h := And.left ht;
-  have emp := And.right ht;
-  induction h with
+  have t_wt := And.left ht;
+  have env_is_emp := And.right ht;
+  induction t_wt with
   | var_rule _ _ _ pre =>
-    have nonemp := And.right ht;
-    rw [nonemp] at pre
+    rw [env_is_emp] at pre
     contradiction
   | abs_rule =>
     apply Or.intro_left
@@ -62,12 +61,12 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
   | app_rule env e1 e2 T1 T2 pre1 pre2 ihe1 ihe2 =>
     cases e1 with
     | var x =>
-      have nonemp := env_var_rule_noemp x (arrow T1 T2) env pre1
+      have env_is_not_emp := env_var_rule_noemp x (arrow T1 T2) env pre1
       contradiction
     | abs _ _ =>
       cases e2 with
       | var x =>
-        have nonemp := env_var_rule_noemp x T1 env pre2
+        have env_is_not_emp := env_var_rule_noemp x T1 env pre2
         contradiction
       | abs _ _ =>
         apply Or.intro_right
@@ -76,8 +75,8 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
         apply value.abs
       | app _ _ =>
         apply Or.intro_right
-        have r := And.intro pre2 emp;
-        cases ihe2 r emp with
+        have r := And.intro pre2 env_is_emp;
+        cases ihe2 r env_is_emp with
         | inl h1 =>
           contradiction
         | inr h2 =>
@@ -89,8 +88,8 @@ theorem progress : ∀ (t : term) (T : type) (env : type_env), has_type env t T 
             apply h
     | app _ _ =>
       apply Or.intro_right
-      have r := And.intro pre1 emp;
-      cases ihe1 r emp with
+      have r := And.intro pre1 env_is_emp;
+      cases ihe1 r env_is_emp with
       | inl h1 =>
         contradiction
       | inr h2 =>
