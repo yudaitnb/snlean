@@ -131,10 +131,7 @@ theorem preservation : ∀ (e e' : term) (T : type) (gamma : type_env),
       sorry
     -- e_app_left : ∀ (e1 e1' e2 : term), eval e1 e1' → eval (app e1 e2) (app e1' e2)
     | e_app_left e1 e1' e2' eve1 =>
-      apply app_rule
-      apply ihe1
+      sorry
     -- e_app_right : ∀ (v e2 e2' : term), value v → eval e2 e2' → eval (app v e2) (app v e2')
     | e_app_right v e2 e2' v_is_value eve2 =>
-      apply has_type.app_rule
-      assumption
-      apply ihe2
+      sorry
