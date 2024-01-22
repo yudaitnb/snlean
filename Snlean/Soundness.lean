@@ -36,16 +36,16 @@ theorem progress :
         apply eAppLeft
         exact t1_canbe_reduced'
     | inl t1_is_value =>
-      apply Or.inr
-      cases jt1 with
-        | tyVar => contradiction
-        | tyApp => contradiction
-        | tyAbs =>
+      apply Or.intro_right
+      cases t1_is_value with
+        | lam =>
           cases progress jt2 with
-          -- (λ x1 : T1. t1) $ (λ x2 : T. t2) —→ [x1 := (λ x2 : T. t2)] t1
+          -- (λ x1 : T1. t1) $ v —→ [x1 := v] t1
           | inl t2_is_value =>
-            apply Exists.intro
-            apply eAppAbs
+            cases t2_is_value with
+            | lam =>
+              apply Exists.intro
+              apply eAppAbs
           | inr t2_canbe_reduced =>
             cases t2_canbe_reduced with
             | intro _ t2_canbe_reduced' =>
